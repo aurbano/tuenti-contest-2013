@@ -22,39 +22,80 @@ public class P3{
 				continue;
 			}
 			ArrayList<String> reordered = new ArrayList<String>();
-			String ret = "";
-			int scene=0,index = 0;
-			boolean goBack = false;	// Flag to reorder future scenes
+			ArrayList<String> future = new ArrayList<String>();
+			String sceneText = "";
+			int scene=0, index = 0, between = 0, futureIndex = -1;
 			boolean list = true;	// If false, just show value of valid
 			boolean valid = false;	// Valid/Invalid
 			Matcher m = Pattern.compile("([.|<|>])([^.<>]+)").matcher(s);
-			while (m.find()) {
+			while (m.find() && list) {
+				sceneText = m.group().substring(1);
 				index = scene;
 				switch(m.group().substring(0,1)){
 					case ".":
-						if(goBack) index --;
-						goBack = false;
+						// Check for invalid
+						if(reordered.contains(sceneText)){
+							list = false;
+							valid = false;
+							continue;
+						}
+						futureIndex = future.indexOf(sceneText); 
+						if(futureIndex > -1){
+							// Remove that element
+							future.remove(futureIndex);
+							// Do nothing really...
+						}else if(!future.isEmpty()){
+							between++;
+						}
 						break;
 					case "<":
+						// Check if its in future
+						futureIndex = future.indexOf(sceneText); 
+						if(futureIndex>-1){
+							if(between > 1){
+								list = false;
+								valid = true;
+								continue;
+							}else{
+								between = 0;
+								// This is fine, remove from future and index--
+								future.remove(futureIndex);
+							}
+						}
 						if(scene > 0) index--;
 						break;
 					case ">":
-						goBack = true;
-						break;
+						// Ensure that this didn't already happen
+						if(reordered.contains(sceneText)){
+							valid = false;
+							list = false;
+						}
+						future.add(sceneText);
+						continue;
 				}
 				// Valid or invalid
 				//System.out.println("index="+index);
-				reordered.add(index, m.group().substring(1));
+				reordered.add(index, sceneText);
 				//System.out.println(m.group());
 				scene++;
 			}
-			
-			for(int i = 0; i < reordered.size(); i++){
-				if(reordered.get(i).length()<1) continue;
-				System.out.print(reordered.get(i));
-				if(i<reordered.size()-1) System.out.print(",");
+			if(!future.isEmpty()){
+				for(int i=0; i<future.size();i++){
+					// There are some elements we didnt insert
+					reordered.add(future.get(i));
+				}
 			}
-			System.out.println();
+			if(list){
+				for(int i = 0; i < reordered.size(); i++){
+					if(reordered.get(i).length()<1) continue;
+					System.out.print(reordered.get(i));
+					if(i<reordered.size()-1) System.out.print(",");
+				}
+				System.out.println();
+			}else{
+				if(valid) System.out.println("valid");
+				else System.out.println("invalid");
+			}
 		}
 	}
 }
