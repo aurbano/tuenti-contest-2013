@@ -13,6 +13,8 @@ local.properties
 .settings/
 .loadpath
 *.zip
+*.7z
+*.tar
 
 # External tool builders
 .externalToolBuilders/
