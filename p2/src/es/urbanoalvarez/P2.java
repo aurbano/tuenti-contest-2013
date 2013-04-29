@@ -34,18 +34,18 @@ public class P2 {
 			 }
 			 //System.out.println("launching "+(line-5));
 			 searchers[line-5] = new Search(dict, s); // Launch the searchers
-			 for(int i=0; i < suggestions; i++){
-				 try{
-					 searchers[i].join();
-					 System.out.print(searchers[i].w+" -> ");
-					 for(int a=0; a<searchers[i].found.size(); a++){
-						 System.out.print(searchers[i].found.get(a)+" ");
-					 }
-					 System.out.println();
-				 }catch(Exception e){
-					 e.printStackTrace();
-				 }
-			 }
 		}
+		for(int i=0; i < suggestions; i++){
+			 try{
+				 searchers[i].join();
+				 System.out.print(searchers[i].w+" ->");
+				 for(int a=0; a<searchers[i].found.size(); a++){
+					 System.out.print(" "+searchers[i].found.get(a));
+				 }
+				 System.out.println();
+			 }catch(Exception e){
+				 e.printStackTrace();
+			 }
+		 }
 	}
 }

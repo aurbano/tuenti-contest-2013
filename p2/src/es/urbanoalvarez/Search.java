@@ -27,11 +27,14 @@ public class Search extends Thread{
 			// Create char array for searched word
 			
 			while((line = br.readLine()) != null){
-				if(sameChars(line)){
+				if(!line.equals(w) && sameChars(line)){
 					//System.out.println("Found: "+line);
 					found.add(line);
 				}
 			}
+			
+			// Sort
+			Collections.sort(found);
 			
 			br.close();
 		}catch(Exception e){
