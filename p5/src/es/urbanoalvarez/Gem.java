@@ -45,13 +45,31 @@ public class Gem {
 		return this.pos == g.pos;
 	}
 	
-	public boolean isBehind(Point pos, LinkedList<Gem> gems){
-		// Check if current gem is behind anoher one
+	public boolean isBehind(Point pos, LinkedList<Gem> gems, LinkedList<Gem> used){
+		// Check if current gem is behind another one
 		for(Gem eachGem : gems){
-			if(pos.distance(this.pos) < pos.distance(eachGem.pos)) continue;
+			if(eachGem.pos.equals(pos)) continue;
+			if(used.contains(eachGem)) continue;
+			/*
+			 * The only needed check is if they are on the same
+			 * quadrant relative to the current position
+			 */
+			if((pos.x - this.pos.x)*(pos.x - eachGem.pos.x) >= 0 && (pos.y - this.pos.y)*(pos.y - eachGem.pos.y) >= 0){
+				// I think they are in the same quadrant
+				// now check if distance is greater, and if so, skip
+				if(this.pos.distance(pos) > eachGem.pos.distance(pos)){
+					//System.out.println("    Behind. Node="+pos.toString()+", Me="+this.pos.toString()+", "+eachGem.toString());
+					return true;
+				}
+			}
+			/*
+			int distanceCurrent = (pos.x - this.pos.x) + (pos.y - this.pos.y);
+			int distanceOther = (pos.x - eachGem.pos.x) + (pos.y - eachGem.pos.y);
+			
+			// Now skip if same row, same col, or diagonal
 			if(pos.x == eachGem.pos.x) return true;
 			if(pos.y == eachGem.pos.y) return true;
-			if((pos.x/eachGem.pos.x)%(pos.y/eachGem.pos.y)==0) return true;
+			if(pos.x - eachGem.pos.x == pos.y - eachGem.pos.y) return true;*/
 		}
 		return false;
 	}

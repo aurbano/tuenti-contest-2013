@@ -50,37 +50,43 @@ public class FindBestPath extends Thread{
 				for(Gem eachGem : gems){
 					if(eachNode.pos.distance(eachGem.pos) > Z) continue;
 					/*
+					 * Discard already visited Gems
+					 */
+					if(!eachNode.testGem(eachGem)) continue;
+					
+					/*
 					 * Discard gems that are behind other gems
 					 * To be an invalid gem the distance without abs has to be greater and same sign
 					 * and the column/row has to be also the same, or multiple
 					 */
-					if(eachGem.isBehind(gems)){
+					if(eachGem.isBehind(eachNode.pos, gems, eachNode.parents)){
 						continue;
 					}
-					if(eachNode.testGem(eachGem)){
-						//System.out.println("    "+eachGem.toString());
-						// Add Tested gem
-						availGems++;
-						// Valid next Gem
-						tempNode = eachNode.next(eachGem);
-						if(tempNode.ttl >= Z){
-							//System.out.println("      Max TTL");
-							// Reached end of line, don't add to next nodes
-							// update reward
-							if(tempNode.ttl == Z){
-								//System.out.println("      Reward="+tempNode.reward);
-								reward = Math.max(reward, tempNode.reward);
-							}
-							continue;
+					
+					//System.out.println("    Valid "+eachGem.toString());
+					// Add Tested gem
+					availGems++;
+					// Valid next Gem
+					tempNode = eachNode.next(eachGem);
+					if(tempNode.ttl >= Z){
+						//System.out.println("      Max TTL");
+						// Reached end of line, don't add to next nodes
+						// update reward
+						if(tempNode.ttl == Z){
+							//System.out.println("      Reward="+tempNode.reward);
+							reward = Math.max(reward, tempNode.reward);
 						}
-						// Discard nodes with small rewards
-						if(tempNode.reward < reward/2 && tempNode.ttl > Z/2){
-							// Discard this node
-							continue;
-						}
-						// Still didnt reach the end
-						nextNodes.add(tempNode);
+						continue;
 					}
+					
+					// Discard nodes with small rewards
+					if(tempNode.reward < reward/2 && tempNode.ttl > Z/2){
+						// Discard this node
+						continue;
+					}
+					
+					// Still didn't reach the end
+					nextNodes.add(tempNode);
 				}
 				if(availGems == 0){
 					// No more gems, update reward

@@ -13,6 +13,11 @@ public class Point {
 		this.y = y;
 	}
 	
+	public Point(Point p){
+		x = p.x;
+		y = p.y;
+	}
+	
 	/**
 	 * Get distance to another Point
 	 * @param p2
@@ -20,6 +25,10 @@ public class Point {
 	 */
 	public int distance(Point p2){
 		return Math.abs(p2.x - this.x) + Math.abs(p2.y - this.y);
+	}
+	
+	public boolean equals(Point p2){
+		return x == p2.x && y == p2.y;
 	}
 	
 	/**
