@@ -64,6 +64,11 @@ public class FindBestPath extends Thread{
 							}
 							continue;
 						}
+						// Discard nodes with small rewards
+						if(tempNode.reward < reward/2 && tempNode.ttl > Z/2){
+							// Discard this node
+							continue;
+						}
 						// Still didnt reach the end
 						nextNodes.add(tempNode);
 					}
