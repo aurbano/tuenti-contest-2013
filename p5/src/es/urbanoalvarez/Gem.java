@@ -1,5 +1,7 @@
 package es.urbanoalvarez;
 
+import java.util.LinkedList;
+
 /**
  * Hold Gems information
  * @author Alex
@@ -41,5 +43,16 @@ public class Gem {
 	
 	public boolean equals(Gem g){
 		return this.pos == g.pos;
+	}
+	
+	public boolean isBehind(Point pos, LinkedList<Gem> gems){
+		// Check if current gem is behind anoher one
+		for(Gem eachGem : gems){
+			if(pos.distance(this.pos) < pos.distance(eachGem.pos)) continue;
+			if(pos.x == eachGem.pos.x) return true;
+			if(pos.y == eachGem.pos.y) return true;
+			if((pos.x/eachGem.pos.x)%(pos.y/eachGem.pos.y)==0) return true;
+		}
+		return false;
 	}
 }

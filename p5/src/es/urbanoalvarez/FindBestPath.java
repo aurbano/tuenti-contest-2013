@@ -48,6 +48,15 @@ public class FindBestPath extends Thread{
 				availGems = 0;
 				// Now calculate all other possible nodes and add them to Next nodes
 				for(Gem eachGem : gems){
+					if(eachNode.pos.distance(eachGem.pos) > Z) continue;
+					/*
+					 * Discard gems that are behind other gems
+					 * To be an invalid gem the distance without abs has to be greater and same sign
+					 * and the column/row has to be also the same, or multiple
+					 */
+					if(eachGem.isBehind(gems)){
+						continue;
+					}
 					if(eachNode.testGem(eachGem)){
 						//System.out.println("    "+eachGem.toString());
 						// Add Tested gem
