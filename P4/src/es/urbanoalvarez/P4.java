@@ -52,4 +52,3 @@ public class P4 {
 		inData.close();	
 	}
 }
->>>>>>> P4
