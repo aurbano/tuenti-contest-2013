@@ -40,7 +40,7 @@ public class P6{
 		for(int t = 0; t<tests; t++){
 			try{
 				finder[t].join();
-				System.out.println(finder[t].time);
+				System.out.println((int)Math.ceil(finder[t].time));
 			}catch(Exception e){
 				e.printStackTrace();
 			}

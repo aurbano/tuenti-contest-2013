@@ -6,12 +6,13 @@ public class FindBestPath extends Thread{
 	
 	Point pos;
 	
-	int speed, wait, time;
+	int wait;
+	double speed, time;
 	Map map;
 	
 	public FindBestPath(Map m, Point pos, int speed, int wait){
 		map = m;
-		this.speed = speed;
+		this.speed = 1/(double)speed;
 		this.wait = wait;
 		time = 99999; // Best time found
 		this.pos = pos; // Starting position
@@ -24,7 +25,7 @@ public class FindBestPath extends Thread{
 		 * This will run similarly to my P5 solution
 		 * Testing all possible moves, but discarding moves that are obviously worse/tested
 		 */
-		LinkedList<Point> testedPoints = new LinkedList<Point>();
+		LinkedList<Node> testedNodes = new LinkedList<Node>();
 		LinkedList<Node> currentNodes = new LinkedList<Node>();
 		LinkedList<Node> nextNodes;
 		Point[] possibleMoves;
@@ -49,6 +50,7 @@ public class FindBestPath extends Thread{
 				availMoves = 0;
 				// Test possible moves
 				possibleMoves = map.possibleMoves(eachNode.pos);
+				testingPoints:
 				for(Point testPoint : possibleMoves){
 					// Discard current and start
 					if(testPoint.equals(eachNode.pos) || testPoint.equals(map.start)) continue;
@@ -56,13 +58,23 @@ public class FindBestPath extends Thread{
 					// Discard already visited Points
 					if(!eachNode.testPoint(testPoint)) continue;
 					
-					// Discard tested points
-					if(testedPoints.contains(testPoint)){
+					tempNode = eachNode.next(testPoint);
+					
+					// Discard tested nodes if they were better
+					for(Node tested : testedNodes){
+						if(tested.pos.equals(testPoint)){
+							if(tested.time > tempNode.time){
+								debug("    Already tested, with worse time");
+							}else{
+								debug("    Already tested, was better. Skip");
+								continue testingPoints;
+							}
+						}
+					}
+					/*if(testedNodes.contains(testPoint)){
 						debug("    Already tested "+testPoint.toString());
 						continue;
-					}
-					
-					tempNode = eachNode.next(testPoint);
+					}*/
 					
 					debug("    Valid move:"+testPoint.toString()+", distance="+testPoint.distance(eachNode.pos)+", time="+tempNode.time);
 					availMoves++;
@@ -74,7 +86,7 @@ public class FindBestPath extends Thread{
 						continue;
 					}
 					// Store as a tested point
-					testedPoints.add(testPoint);
+					testedNodes.add(tempNode);
 					// Still didn't reach the end, increment the wait and continue
 					tempNode.time += wait;
 					
