@@ -26,7 +26,7 @@ public class FindBestScore extends Thread{
 			debug("Start picking");
 			int i = 0;
 			Word check;
-			while(time > 1 && i < words.size()){
+			while(time > 2 && i < words.size()){
 				check = words.get(i);
 				i++;
 				debug("  Time = "+time+", Check: "+check);
@@ -204,7 +204,7 @@ public class FindBestScore extends Thread{
 	 */
 	private int validWord(String w){
 		if(w.length()<1) return 0;
-		for(Word word : P7.words.get(w.charAt(0))){
+		for(Word word : tester.words.get(w.charAt(0))){
 			if(word.w.equals(w)) return 1; // A word is this
 			if(word.w.indexOf(w)==0) return 0; // A word starts by this
 		}
@@ -216,6 +216,6 @@ public class FindBestScore extends Thread{
 	 * @param text
 	 */
 	public void debug(String text){
-		//System.out.println(text);
+		System.out.println(text);
 	}
 }

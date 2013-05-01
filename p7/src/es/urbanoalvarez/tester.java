@@ -25,21 +25,23 @@ public class tester {
 		}
 		dict.close();
 		
-		/*String scores = "{'A': 1, 'C': 3, 'B': 3, 'E': 1, 'D': 2, 'G': 2, 'F': 4, 'I': 1, 'H': 4, 'K': 5, 'J': 8, 'M': 3, 'L': 1, 'O': 1, 'N': 1, 'Q': 5, 'P': 3, 'S': 1, 'R': 1, 'U': 1, 'T': 1, 'W': 4, 'V': 4, 'Y': 4, 'X': 8, 'Z': 10}";
+		String scores = "{'A': 1, 'C': 3, 'B': 3, 'E': 1, 'D': 2, 'G': 2, 'F': 4, 'I': 1, 'H': 4, 'K': 5, 'J': 8, 'M': 3, 'L': 1, 'O': 1, 'N': 1, 'Q': 5, 'P': 3, 'S': 1, 'R': 1, 'U': 1, 'T': 1, 'W': 4, 'V': 4, 'Y': 4, 'X': 8, 'Z': 10}";
 		Board board = new Board(4, 4, scores);
 		board.parseRow("K11 X11 H11 V11",0);
 		board.parseRow("K11 F12 R11 S11",1);
 		board.parseRow("D11 K11 D11 P12",2);
-		board.parseRow("Q11 D11 A11 N11",3);*/
+		board.parseRow("Q11 D11 A11 N11",3);
+		int duration = 55;//*/
 		
-		String scores = "{'A': 1, 'C': 3, 'B': 3, 'E': 1, 'D': 2, 'G': 2, 'F': 4, 'I': 1, 'H': 4, 'K': 5, 'J': 8, 'M': 3, 'L': 1, 'O': 1, 'N': 1, 'Q': 5, 'P': 3, 'S': 1, 'R': 1, 'U': 1, 'T': 1, 'W': 4, 'V': 4, 'Y': 4, 'X': 8, 'Z': 10}";
+		/*String scores = "{'A': 1, 'C': 3, 'B': 3, 'E': 1, 'D': 2, 'G': 2, 'F': 4, 'I': 1, 'H': 4, 'K': 5, 'J': 8, 'M': 3, 'L': 1, 'O': 1, 'N': 1, 'Q': 5, 'P': 3, 'S': 1, 'R': 1, 'U': 1, 'T': 1, 'W': 4, 'V': 4, 'Y': 4, 'X': 8, 'Z': 10}";
 		Board board = new Board(2, 2, scores);
 		board.parseRow("B11 B11", 0);
 		board.parseRow("I11 P11", 1);
+		int duration = 9;//*/
 		
 		board.print();
 		
-		FindBestScore finder = new FindBestScore(board, 9);
+		FindBestScore finder = new FindBestScore(board, duration);
 		
 		finder.join();
 		System.out.println(finder.points);
