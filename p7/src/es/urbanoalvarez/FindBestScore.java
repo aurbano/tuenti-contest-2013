@@ -65,7 +65,6 @@ public class FindBestScore extends Thread{
 		//Set<Word> valid = new HashSet<Word>();
 		ArrayList<Word> ret = new ArrayList<Word>();
 		
-		LinkedList<Node> testedNodes = new LinkedList<Node>();
 		LinkedList<Node> currentNodes = new LinkedList<Node>();
 		LinkedList<Node> nextNodes;
 		Cell[] possibleMoves;
@@ -81,9 +80,10 @@ public class FindBestScore extends Thread{
 		// Now starts the fun part
 		
 		Node tempNode;
-		int availMoves, iter = 0, nodeType;
+		int availMoves, iter = 0;
 		
 		while(currentNodes.size() > 0){
+			debug("-------");
 			debug("Iteration "+iter+": "+currentNodes.size()+" nodes, "+ret.size()+" words");
 			nextNodes = new LinkedList<Node>();
 			// Iterate the nodes
@@ -94,9 +94,9 @@ public class FindBestScore extends Thread{
 				availMoves = 0;
 				// Test possible moves
 				possibleMoves = possibleMoves(eachNode);
-				testingPoints:
 				for(Cell testCell : possibleMoves){
-					// Discard current and start
+					
+					// Discard current (Non valid moves)
 					if(testCell.equals(eachNode.pos)){
 						continue;
 					}
@@ -124,14 +124,6 @@ public class FindBestScore extends Thread{
 					
 					availMoves++;
 					
-					// Is it the end?
-					/*if(testCell.equals(map.end)){
-						time = Math.min(time,  testCell.time);
-						debug("      --{{End"+testCell.toString()+" reached in "+testCell.time+"s!}}--\n");
-						continue;
-					}*/
-					// Store as a tested point
-					testedNodes.add(tempNode);
 					// Still didn't reach the end, increment the wait and continue
 					//tempNode.time += wait;
 					
@@ -187,12 +179,12 @@ public class FindBestScore extends Thread{
 		int r,c,type, index=-1;
 		
 		for(int row=-1; row < 2; row++){
-			for(int col=-1; col<2; col++){
-				index++;
+			for(int col=-1; col < 2; col++){
 				if(row==col && row == 0) continue;
+				index++;
 				// Coordinates
 				r = cur.pos.row + row;
-				c = cur.pos.row + col;
+				c = cur.pos.col + col;
 				
 				// Test bounds
 				if(r >= 0 && c >= 0 && r < board.h && c < board.w){
@@ -203,7 +195,8 @@ public class FindBestScore extends Thread{
 						try{
 							moves[index] = new Cell(board.cells[r][c], type);
 						}catch(Exception e){
-							
+							e.printStackTrace();
+							System.exit(1);
 						}
 					}
 				}//else debug("  Out of bounds: ("+r+","+c+")");
@@ -222,9 +215,11 @@ public class FindBestScore extends Thread{
 	 */
 	private int validWord(String w){
 		if(w.length()<1) return 0;
-		for(int i=0; i<P7.wordsNum;i++){
-			if(P7.words.get(i).w.equals(w)) return 1; // A word is this
-			if(P7.words.get(i).w.indexOf(w)==0) return 0; // A word starts by this
+		//for(int i=0; i<P7.wordsNum;i++){
+		LinkedList<Word> avail = tester.words.get(w.charAt(0));
+		for(Word word : avail){
+			if(word.w.equals(w)) return 1; // A word is this
+			if(word.w.indexOf(w)==0) return 0; // A word starts by this
 		}
 		return -1;
 	}
@@ -234,6 +229,6 @@ public class FindBestScore extends Thread{
 	 * @param text
 	 */
 	public void debug(String text){
-		//System.out.println(text);
+		System.out.println(text);
 	}
 }

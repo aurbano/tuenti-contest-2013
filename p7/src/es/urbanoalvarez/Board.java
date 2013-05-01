@@ -44,6 +44,7 @@ public class Board {
 		int score = 0,
 			multiplier = 1;
 		for(Cell each : cells){
+			System.out.println(each);
 			score += letterScore(each.letter) * each.CM();
 			multiplier = Math.max(multiplier, each.WM()); // Find the greatest multiplier
 		}
