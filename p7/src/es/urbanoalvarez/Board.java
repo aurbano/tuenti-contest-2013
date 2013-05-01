@@ -10,13 +10,13 @@ import java.util.regex.Pattern;
  */
 public class Board {
 	int w, h;
-	Cell[][] board;
+	Cell[][] cells;
 	int[] scores = new int[26];
 	
 	public Board(int rows, int cols, String scores){
 		w = cols;
 		h = rows;
-		board = new Cell[w][h]; // row-col
+		cells = new Cell[rows][cols]; // row-col
 		
 		// Parse the scores from String to array of ints
 		Matcher m = Pattern.compile("'([A-Z])': ([0-9])").matcher(scores);
@@ -25,14 +25,18 @@ public class Board {
 		}
 	}
 	
+	/**
+	 * Process a row in String format from input
+	 * @param row
+	 * @param num
+	 */
 	public void parseRow(String row, int num){
 		String[] cells = row.split(" ");
-		int type, value;
-		for(int col=0; col < cells.length; col++){
-			type = new Integer(Character.toString(row.charAt(1)));
-			value = new Integer(Character.toString(row.charAt(2)));
-			
-			board[num][col] = new Cell(row.charAt(0), type, value);
+		int type, value, col=0;
+		for(col=0; col < cells.length; col++){
+			type = new Integer(Character.toString(cells[col].charAt(1)));
+			value = new Integer(Character.toString(cells[col].charAt(2)));
+			this.cells[num][col] = new Cell(cells[col].charAt(0), type, value);
 		}
 	}
 	
@@ -43,7 +47,7 @@ public class Board {
 		System.out.println("Printing board "+h+" rows and "+w+" cols");
 		for(int r=0; r<this.h; r++){
 			for(int c=0; c<this.w;c++){
-				System.out.print("("+r+","+c+") "+board[r][c].toString()+" ");
+				System.out.print("("+r+","+c+") "+cells[r][c].toString()+" ");
 			}
 			System.out.println();
 		}
