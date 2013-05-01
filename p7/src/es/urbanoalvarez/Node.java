@@ -3,24 +3,21 @@ package es.urbanoalvarez;
 import java.util.ArrayList;
 
 public class Node {
-	double time;
 	int value;
 	String word;
 	Cell pos;
 	ArrayList<Cell> parents; // Visited points (avoid repeating)
 	
 	// Initial constructor
-	public Node(double t, Cell p){
+	public Node(Cell p){
 		pos = p;
-		time = t;
 		parents = new ArrayList<Cell>(); // Empty list
 		parents.add(p);
 		word = Character.toString(p.letter);
 	}
 	// Next nodes:
-	public Node(double t, Cell p, String w, ArrayList<Cell> parents){
+	public Node(Cell p, String w, ArrayList<Cell> parents){
 		pos = p;
-		time = t;
 		this.parents = parents;
 		word = w + Character.toString(p.letter);
 	}
@@ -51,9 +48,7 @@ public class Node {
 		ArrayList<Cell> nextParents = new ArrayList<Cell>(parents);
 		nextParents.add(p);
 		
-		double nextTime = this.time + 1; // Change this
-		
-		return new Node(nextTime, p, word, nextParents);
+		return new Node(p, word, nextParents);
 	}
 	
 	
@@ -61,6 +56,6 @@ public class Node {
 	 * Debug method
 	 */
 	public String toString(){
-		return "Node "+word+" "+pos.toString()+" Time="+time+", Parents="+parents.size();
+		return "Node "+word+" "+pos.toString()+" Parents="+parents.size();
 	}
 }

@@ -9,7 +9,7 @@ import java.util.Arrays;
  */
 public class Cell {
 	char letter;
-	int type, value, row, col, status=-1; // Status is just for moves in nodes....
+	int type, value, row, col, status=-2; // Status is just for moves in nodes....
 	
 	public Cell(char l, int r, int c, int t, int v){
 		letter = l;
@@ -81,6 +81,6 @@ public class Cell {
 	
 	@Override
     public int hashCode() {
-		return Arrays.hashCode( new Object[] { status, letter, type, value, row, col } );
+		return Arrays.hashCode( new Object[] { letter, type, value, row, col } );
     }
 }

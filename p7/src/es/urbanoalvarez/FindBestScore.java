@@ -44,7 +44,7 @@ public class FindBestScore extends Thread{
 					points += check.value;
 					used.add(check.w);
 					debug("    Picked, Points="+points+", time="+time);
-				}else debug("    Already used a better one");
+				}else debug("    Already used");
 			}
 			debug("Final points: "+points);
 			
@@ -73,7 +73,7 @@ public class FindBestScore extends Thread{
 		for(int row = 0; row < board.h; row++){
 			for(int col = 0;col < board.w; col++){
 				// For each point, create a node
-				currentNodes.add(new Node(1,board.cells[row][col]));
+				currentNodes.add(new Node(board.cells[row][col]));
 			}
 		}
 		
@@ -96,6 +96,9 @@ public class FindBestScore extends Thread{
 				possibleMoves = possibleMoves(eachNode);
 				for(Cell testCell : possibleMoves){
 					
+					// Discard non movable
+					if(testCell.status == -1) continue;
+					
 					// Discard current (Non valid moves)
 					if(testCell.equals(eachNode.pos)){
 						continue;
@@ -103,20 +106,20 @@ public class FindBestScore extends Thread{
 					
 					// Discard already visited Points
 					if(!eachNode.testPoint(testCell)){
+						debug("    Already used "+testCell);
 						continue;
 					}
 					
-					if(testCell.status < 0) continue;
-					
 					tempNode = eachNode.next(testCell);
 					
-					debug("    Valid move:"+testCell.toString()+", time="+tempNode.time);
+					debug("    Valid move:"+testCell.toString());
 					
 					// Test end
 					if(testCell.status == 1){
-						debug("      Valid end");
 						Word w = tempNode.getWord();
-						if(!ret.contains(w)){
+						debug("      Valid end "+w);
+						if(!ret.contains(w)){ // Check if this word was already picked
+							// Calculate score and submit
 							w.value = board.wordScore(tempNode.parents.toArray(new Cell[tempNode.parents.size()]));
 							ret.add(w);
 						}
@@ -124,21 +127,11 @@ public class FindBestScore extends Thread{
 					
 					availMoves++;
 					
-					// Still didn't reach the end, increment the wait and continue
-					//tempNode.time += wait;
-					
-					// Discard if it's already longer than a valid time
-					if(tempNode.time >= time){
-						debug("      Too long");
-						continue;
-					}
-					
 					// Valid node
 					nextNodes.add(tempNode);
 				}
 				
 				if(availMoves == 0){
-					// No more moves, did you reach the end?
 					debug("    No more moves...");
 				}
 			}
@@ -148,9 +141,11 @@ public class FindBestScore extends Thread{
 			iter++;
 		}
 		
+		debug("--------------");
+		debug("Sorting...");
 		// Sort Words by value :D
 		Collections.sort(ret, new Word.WordComparator());
-		
+		debug("--------------");
 		return ret;
 	}
 	
