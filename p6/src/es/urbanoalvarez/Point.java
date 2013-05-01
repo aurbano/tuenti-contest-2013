@@ -1,26 +1,58 @@
 package es.urbanoalvarez;
 
 /**
- * Defines a point in the map
+ * Just a class to store Map coordinates
  * @author Alex
  *
  */
 public class Point {
-	boolean ice;	// true means walkable
-	int type;		// 0-> ice/rock, 1->start, 2->end
+	int r, c; // Row and column
 	
-	public Point(boolean i, int t){
-		ice = i;
-		type = t;
+	/**
+	 * Normal
+	 * @param r
+	 * @param c
+	 */
+	public Point(int r, int c){
+		this.r = r;
+		this.c = c;
 	}
 	
+	/**
+	 * Copy
+	 * @param p
+	 */
+	public Point(Point p){
+		this.r = p.r;
+		this.c = p.c;
+	}
+	
+	/**
+	 * Get distance to another Point
+	 * @param p2
+	 * @return
+	 */
+	public int distance(Point p2){
+		return Math.abs(p2.r - this.r) + Math.abs(p2.c - this.c);
+	}
+	
+	public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (obj == this)
+            return true;
+        if (!(obj instanceof Point))
+            return false;
+        
+		//System.out.println("  {Comparing "+toString()+", with "+obj.toString()+"}");
+		Point p2 = (Point) obj;
+		return r == p2.r && c == p2.c;
+	}
+	
+	/**
+	 * Debug function
+	 */
 	public String toString(){
-		String ret = "#";
-		if(ice) ret = ".";
-		if(type>0){
-			if(type>1) ret = "O";
-			else ret = "X";
-		}
-		return ret;
+		return "("+r+","+c+")";
 	}
 }
