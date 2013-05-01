@@ -107,7 +107,11 @@ public class Word {
 			Word e1 = (Word) o1;
 			Word e2 = (Word) o2;
 			
-			return (e2.value - e1.value);
+			// Order by points to time ratio!!!
+			double ratio1 = e1.value / e1.w.length();
+			double ratio2 = e2.value / e2.w.length();
+			
+			return (int)Math.round(ratio2*1000 - ratio1*1000);
 		}
 	}
 }
