@@ -9,7 +9,7 @@ import java.util.Arrays;
  */
 public class Cell {
 	char letter;
-	int type, value, row, col;
+	int type, value, row, col, status=-1; // Status is just for moves in nodes....
 	
 	public Cell(char l, int r, int c, int t, int v){
 		letter = l;
@@ -17,6 +17,31 @@ public class Cell {
 		value = v;
 		row = r;
 		col = c;
+	}
+	
+	/**
+	 * Copy
+	 * @param c
+	 */
+	public Cell(Cell c){
+		letter = c.letter;
+		type = c.type;
+		value = c.value;
+		row = c.row;
+		col = c.col;
+	}
+	
+	/**
+	 * Copy
+	 * @param c
+	 */
+	public Cell(Cell c, int s){
+		letter = c.letter;
+		type = c.type;
+		value = c.value;
+		row = c.row;
+		col = c.col;
+		status = s;
 	}
 	
 	public String toString(){
@@ -48,9 +73,6 @@ public class Cell {
 		if (!(other instanceof Cell))return false;
 		Cell c = (Cell)other;
 		// Two cells are the same if their coordinates are
-		if(this.type != c.type) return false;
-		if(this.value != c.value) return false;
-		if(this.letter != c.letter) return false;
 		if(this.row != c.row) return false;
 		if(this.col != c.col) return false;
 			
@@ -59,6 +81,6 @@ public class Cell {
 	
 	@Override
     public int hashCode() {
-		return Arrays.hashCode( new Object[] { letter, type, value, row, col } );
+		return Arrays.hashCode( new Object[] { status, letter, type, value, row, col } );
     }
 }

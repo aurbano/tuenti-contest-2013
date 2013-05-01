@@ -22,21 +22,10 @@ public class FindBestScore extends Thread{
 			// Let's start by generating all possible words (All rows, columns and diagonals, max length)
 			LinkedList<String> used = new LinkedList<String>();
 			// All possible words
-			Set<Word> possible = allWords();
+			//Set<Word> possible = allWords();
 			// Calculate all valid words (It returns them nicely sorted by value :D )
-			ArrayList<Word> words = validWords(possible);
-			debug("All possible words:");
-			for(Word word : possible){
-				// Assign their value
-				System.out.println(word);
-			}
-			debug("-------");
-			debug("All valid words:");
-			for(Word word : words){
-				// Assign their value
-				System.out.println(word);
-			}
-			debug("--------");
+			ArrayList<Word> words = validWords();
+			
 			debug("Start picking");
 			int i = 0;
 			Word check;
@@ -66,48 +55,105 @@ public class FindBestScore extends Thread{
 	}
 	
 	/**
-	 * Simply display a text if I wanted to (comment out the system out for submit)
-	 * @param text
-	 */
-	public void debug(String text){
-		System.out.println(text);
-	}
-	
-	/**
 	 * Returns a list of words found on the dictionary, for a given set of
 	 * possible "words"
 	 * @param words
 	 * @return
 	 */
-	private ArrayList<Word> validWords(Set<Word> words) throws FileNotFoundException, IOException{
+	private ArrayList<Word> validWords() throws FileNotFoundException, IOException{
 		
 		//Set<Word> valid = new HashSet<Word>();
 		ArrayList<Word> ret = new ArrayList<Word>();
 		
-		int index;
-		Cell[] subcells;
-		// Iterate over the words
-		for(int i =0;i<P7.wordsNum;i++){
-			// For each word, check if it's contained in any of the words found in the board
-			for(Word check : words){
-				// We must take all occurences, since some might have more value
-				index = 0;
-				index = check.indexOf(P7.words.get(i), index);
-				while(index != -1){
-					// The word is contained. I would like to get it's cells
-					// and calculate its value. So that duplicate words can be weeded out correctly.
-					// Cells for this word:
-					subcells = new Cell[P7.words.get(i).w.length()];
-					for(int letter=0;letter<P7.words.get(i).w.length();letter++){
-						subcells[letter] = check.cells[index + letter];
+		LinkedList<Node> testedNodes = new LinkedList<Node>();
+		LinkedList<Node> currentNodes = new LinkedList<Node>();
+		LinkedList<Node> nextNodes;
+		Cell[] possibleMoves;
+		
+		// Setup all starting points
+		for(int row = 0; row < board.h; row++){
+			for(int col = 0;col < board.w; col++){
+				// For each point, create a node
+				currentNodes.add(new Node(1,board.cells[row][col]));
+			}
+		}
+		
+		// Now starts the fun part
+		
+		Node tempNode;
+		int availMoves, iter = 0, nodeType;
+		
+		while(currentNodes.size() > 0){
+			debug("Iteration "+iter+": "+currentNodes.size()+" nodes, "+ret.size()+" words");
+			nextNodes = new LinkedList<Node>();
+			// Iterate the nodes
+			for(Node eachNode : currentNodes){
+				debug("  "+eachNode.toString());
+				
+				// Reset the available moves
+				availMoves = 0;
+				// Test possible moves
+				possibleMoves = possibleMoves(eachNode);
+				testingPoints:
+				for(Cell testCell : possibleMoves){
+					// Discard current and start
+					if(testCell.equals(eachNode.pos)){
+						continue;
 					}
-					ret.add(new Word(P7.words.get(i), subcells, board.wordScore(subcells)));
 					
-					// Next
-					index += P7.words.get(i).w.length();
-					index = check.indexOf(P7.words.get(i), index);
+					// Discard already visited Points
+					if(!eachNode.testPoint(testCell)){
+						continue;
+					}
+					
+					if(testCell.status < 0) continue;
+					
+					tempNode = eachNode.next(testCell);
+					
+					debug("    Valid move:"+testCell.toString()+", time="+tempNode.time);
+					
+					// Test end
+					if(testCell.status == 1){
+						debug("      Valid end");
+						Word w = tempNode.getWord();
+						if(!ret.contains(w)){
+							w.value = board.wordScore(tempNode.parents.toArray(new Cell[tempNode.parents.size()]));
+							ret.add(w);
+						}
+					}
+					
+					availMoves++;
+					
+					// Is it the end?
+					/*if(testCell.equals(map.end)){
+						time = Math.min(time,  testCell.time);
+						debug("      --{{End"+testCell.toString()+" reached in "+testCell.time+"s!}}--\n");
+						continue;
+					}*/
+					// Store as a tested point
+					testedNodes.add(tempNode);
+					// Still didn't reach the end, increment the wait and continue
+					//tempNode.time += wait;
+					
+					// Discard if it's already longer than a valid time
+					if(tempNode.time >= time){
+						debug("      Too long");
+						continue;
+					}
+					
+					// Valid node
+					nextNodes.add(tempNode);
+				}
+				
+				if(availMoves == 0){
+					// No more moves, did you reach the end?
+					debug("    No more moves...");
 				}
 			}
+			// If there are any nextNodes update currentNodes
+			if(nextNodes.size()==0) break;
+			currentNodes = nextNodes;
+			iter++;
 		}
 		
 		// Sort Words by value :D
@@ -117,110 +163,77 @@ public class FindBestScore extends Thread{
 	}
 	
 	/**
-	 * Find all possible words in the board, in all directions
-	 * without repeating. By words I mean max length, without checking the dictionary.
-	 * This could probably be done much more efficiently, with less loops...
+	 * Find possible moves around a Node
+	 * it checks the dictionary to validate a point, and the Node's history
+	 * The returned values are TL, T, TR, R, BR, B, BL, L
+	 * an option, it will return the current node's position
+	 * @param pos
 	 * @return
 	 */
-	private Set<Word> allWords(){
-		Set<Word> possible = new HashSet<Word>();
+	private Cell[] possibleMoves(Node cur){
+		// There are 4 possibilities
+		Cell[] moves = new Cell[8];
+		// Defaults
+		moves[0] = new Cell(cur.pos);
+		moves[1] = new Cell(cur.pos);
+		moves[2] = new Cell(cur.pos);
+		moves[3] = new Cell(cur.pos);
+		moves[4] = new Cell(cur.pos);
+		moves[5] = new Cell(cur.pos);
+		moves[6] = new Cell(cur.pos);
+		moves[7] = new Cell(cur.pos);
 		
-		String tempRow, tempCol, tempDiag;
-		ArrayList<Cell> cells; // Container with the cells used by each word
+		String add;
+		int r,c,type, index=-1;
 		
-		// Horizontal
-		for(int r=0; r<board.h;r++){
-			cells = new ArrayList<Cell>();
-			tempRow = "";
-			for(int c=0; c<board.w; c++){
-				tempRow += board.cells[r][c].letter;
-				cells.add(board.cells[r][c]);
+		for(int row=-1; row < 2; row++){
+			for(int col=-1; col<2; col++){
+				index++;
+				if(row==col && row == 0) continue;
+				// Coordinates
+				r = cur.pos.row + row;
+				c = cur.pos.row + col;
+				
+				// Test bounds
+				if(r >= 0 && c >= 0 && r < board.h && c < board.w){
+					add = cur.word+Character.toString(board.cells[r][c].letter);
+					// Now test this move:
+					type = validWord(add);
+					if(type>-1){
+						try{
+							moves[index] = new Cell(board.cells[r][c], type);
+						}catch(Exception e){
+							
+						}
+					}
+				}//else debug("  Out of bounds: ("+r+","+c+")");
 			}
-			possible.add(new Word(tempRow, cells));
 		}
 		
-		// Vertical
-		for(int c=0; c<board.w; c++){
-			cells = new ArrayList<Cell>();
-			tempCol = "";
-			for(int r=0; r<board.h;r++){
-				tempCol += board.cells[r][c].letter;
-				cells.add(board.cells[r][c]);
-			}
-			possible.add(new Word(tempCol, cells));
-		}
+		return moves;
+	}
 	
-		int r=0, c=0;
-		try{
-			// Diagonals starting on the first column and going down
-			for(int start=0; start<board.h-1; start++){
-				cells = new ArrayList<Cell>();
-				// For each starting cell, loop over the cells in its corresponding diagonal
-				r = start;
-				c = 0;
-				tempDiag = "";
-				while(r < board.h && c < board.w){
-					tempDiag += board.cells[r][c].letter;
-					cells.add(board.cells[r][c]);
-					r++;
-					c++;
-				}
-				possible.add(new Word(tempDiag, cells));
-			}
-			
-			
-			// Diagonals starting on the first column and going up
-			for(int start=1; start<board.h; start++){
-				cells = new ArrayList<Cell>();
-				// For each starting cell, loop over the cells in its corresponding diagonal
-				r = start;
-				c = 0;
-				tempDiag = "";
-				while(r >= 0 && c < board.w){
-					tempDiag += board.cells[r][c].letter;
-					cells.add(board.cells[r][c]);
-					r--;
-					c++;
-				}
-				possible.add(new Word(tempDiag, cells));
-			}
-			
-			// Diagonals starting on the bottom row going up
-			for(int start=0; start<board.w-1; start++){
-				cells = new ArrayList<Cell>();
-				// For each starting cell, loop over the cells in its corresponding diagonal
-				c = start;
-				r = board.h-1;
-				tempDiag = "";
-				while(c < board.w && r >=0){
-					tempDiag += board.cells[r][c].letter;
-					cells.add(board.cells[r][c]);
-					r--;
-					c++;
-				}
-				possible.add(new Word(tempDiag, cells));
-			}
-			
-			// Diagonals starting on the top row going down
-			for(int start=0; start<board.w-1; start++){
-				cells = new ArrayList<Cell>();
-				// For each starting cell, loop over the cells in its corresponding diagonal
-				c = start;
-				r = 0;
-				tempDiag = "";
-				while(c < board.w && r < board.h){
-					tempDiag += board.cells[r][c].letter;
-					cells.add(board.cells[r][c]);
-					r++;
-					c++;
-				}
-				possible.add(new Word(tempDiag, cells));
-			}
-		}catch(Exception e){
-			debug("Out of bounds: r="+r+", c="+c);
-			e.printStackTrace();
-			System.exit(-1);
+	/**
+	 * Returns -1 if no word starts or ends with that String
+	 * returns 0 if a word starts with that String
+	 * returns 1 if a word ends with that String 
+	 * @param w
+	 * @return
+	 */
+	private int validWord(String w){
+		if(w.length()<1) return 0;
+		for(int i=0; i<P7.wordsNum;i++){
+			if(P7.words.get(i).w.equals(w)) return 1; // A word is this
+			if(P7.words.get(i).w.indexOf(w)==0) return 0; // A word starts by this
 		}
-		return possible;
+		return -1;
+	}
+	
+	/**
+	 * Simply display a text if I wanted to (comment out the system out for submit)
+	 * @param text
+	 */
+	public void debug(String text){
+		//System.out.println(text);
 	}
 }

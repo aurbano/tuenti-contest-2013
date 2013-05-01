@@ -5,22 +5,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 public class P7{
 	static ArrayList<Word> words;
 	static int wordsNum;
 	
 	public static void main(String[] args) throws IOException{
-		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-		String scores = "{'A': 1, 'C': 3, 'B': 3, 'E': 1, 'D': 2, 'G': 2, 'F': 4, 'I': 1, 'H': 4, 'K': 5, 'J': 8, 'M': 3, 'L': 1, 'O': 1, 'N': 1, 'Q': 5, 'P': 3, 'S': 1, 'R': 1, 'U': 1, 'T': 1, 'W': 4, 'V': 4, 'Y': 4, 'X': 8, 'Z': 10}";
-		int duration = 9;
-		int rows = 2;
-		int cols = 2;
-		
-		Board board = new Board(rows, cols, scores);
-		
 		// Load dictionary in memory
 		words = new ArrayList<Word>(); // Words from the dictionary, in memory
 		BufferedReader dict = new BufferedReader(new FileReader("boozzle-dict.txt"));
@@ -31,13 +21,41 @@ public class P7{
 		}
 		dict.close();
 		
-		System.out.println("Loaded "+wordsNum+" words");
-
-		board.parseRow("B11 B11",0);
-		board.parseRow("I11 P11",1);
+		// Now read input
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		int tests = new Integer(in.readLine()),
+			duration, rows, cols;
+		String scores;
+		Board board;
 		
-		board.print();
+		// Finders
+		FindBestScore[] finder = new FindBestScore[tests];
+				
+		for(int i=0; i<tests; i++){
+			scores = in.readLine();
+			duration = new Integer(in.readLine());
+			rows = new Integer(in.readLine());
+			cols = new Integer(in.readLine());
+			
+			board = new Board(rows, cols, scores);
+			
+			// Read board data
+			for(int row = 0; row<rows; row++){
+				board.parseRow(in.readLine(),row);
+			}
+			
+			finder[i] = new FindBestScore(board, duration);
+		}
 		
-		FindBestScore finder = new FindBestScore(board, duration);
+		// Display results
+		for(int t = 0; t<tests; t++){
+			try{
+				finder[t].join();
+				System.out.println(finder[t].points);
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		
 	}
 }

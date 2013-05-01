@@ -40,20 +40,6 @@ public class Board {
 		}
 	}
 	
-	/**
-	 * Debug function, prints the board
-	 */
-	public void print(){
-		System.out.println("Printing board "+h+" rows and "+w+" cols");
-		for(int r=0; r<this.h; r++){
-			for(int c=0; c<this.w;c++){
-				System.out.print(cells[r][c].toString()+" ");
-			}
-			System.out.println();
-		}
-		System.out.println("------------");
-	}
-	
 	public int wordScore(Cell[] cells){
 		int score = 0,
 			multiplier = 1;
@@ -66,5 +52,19 @@ public class Board {
 	
 	private int letterScore(char letter){
 		return this.scores[(int) letter - 65];
+	}
+	
+	/**
+	 * Debug function, prints the board
+	 */
+	public void print(){
+		System.out.println("Printing board "+h+" rows and "+w+" cols");
+		for(int r=0; r<this.h; r++){
+			for(int c=0; c<this.w;c++){
+				System.out.print(cells[r][c].toString()+" ");
+			}
+			System.out.println();
+		}
+		System.out.println("------------");
 	}
 }
