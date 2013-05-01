@@ -24,6 +24,15 @@ public class Item {
 	}
 	
 	/**
+	 * Test if current block is the end
+	 * @return
+	 */
+	public boolean isEnd(){
+		if(type == 2) return true;
+		return false;
+	}
+	
+	/**
 	 * Debug function
 	 */
 	public String toString(){

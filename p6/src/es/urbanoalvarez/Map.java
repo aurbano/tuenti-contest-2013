@@ -16,7 +16,7 @@ public class Map {
 	 * @param m
 	 * @param n
 	 */
-	public Map(int h, int w){
+	public Map(int w, int h){
 		this.w = w;
 		this.h = h;
 		map = new Item[h][w];
@@ -28,25 +28,31 @@ public class Map {
 	 * @param num Row number where you want to insert
 	 */
 	public void parseRow(String row, int num){
-		Item[] rowPoints = new Item[row.length()];
+		Item[] rowPoints = new Item[w];
 		// Iterate through the columns
+		int type, write = 0;
+		boolean ice;
 		for (int i = 0;i < row.length(); i++){
-			int type = 0;
-			boolean ice = true;
+			type = 0;
+			ice = true;
 			switch(row.charAt(i)){
 				case '#':
 					ice = false;
 					break;
 				case 'X':
 					type = 1;
-					start = new Point(num, i);
+					start = new Point(num, write);
 					break;
 				case 'O':
 					type = 2;
-					end = new Point(num, i);
+					end = new Point(num, write);
 					break;
+				default:
+					// One of those weird chars...
+					i++;
 			}
-			rowPoints[i] = new Item(ice, type);
+			rowPoints[write] = new Item(ice, type);
+			write++;
 		}
 		map[num] = rowPoints;
 	}
@@ -56,12 +62,17 @@ public class Map {
 	 */
 	public void print(){
 		System.out.println("Printing map "+h+" rows and "+w+" cols");
+		System.out.println("Start: "+start.toString());
+		System.out.println("End: "+end.toString());
+		System.out.print("0 ");
 		for(int r=0; r<this.h; r++){
 			for(int c=0; c<this.w;c++){
 				System.out.print(map[r][c].toString());
 			}
 			System.out.println();
+			System.out.print((r+1)+" ");
 		}
+		System.out.println("------------");
 	}
 	
 	/**
@@ -71,51 +82,61 @@ public class Map {
 	 */
 	public Point[] possibleMoves(Point p){
 		Point[] next = new Point[4];
-		// Test boundaries
+		// Test boundaries (This should never be true...)
 		if(p.c >= w  || p.c < 0 || p.r > h || p.r < 0){
 			System.out.println(" Point out of bounds!! "+p.toString());
 			System.exit(-1);
 		}
-		/*
-		 * Test vertically: Find the closest # to the current position
-		 * the column is p.col
-		 */
-		int first=0, second=0;
-		boolean foundPos = false;
-		for(int r=0;r<this.h;r++){
-			if(p.r == r){
-				foundPos = true;
-				continue;
-			}
-			if(!foundPos && map[r][p.c].isRock()){
-				first = Math.max(0, Math.min(h-1,r+1));
-			}else if(foundPos && map[r][p.c].isRock()){
-				second = Math.max(0, Math.min(h-1,r-1));
-				continue;
-			}
-		}
+		// Assing the current position to all next values, default
+		next[0] = new Point(p);
+		next[1] = new Point(p);
+		next[2] = new Point(p);
+		next[3] = new Point(p);
 		
-		next[0] = new Point(first, p.c);
-		next[2] = new Point(second, p.c);
-		
-		foundPos = false;
-		
-		// Test horizontally
-		for(int c=0;c<this.w;c++){
-			if(p.c == c){
-				foundPos = true;
-				continue;
+		// Find top move
+		for(int r=p.r-1; r>=0; r--){
+			if(map[r][p.c].isEnd()){
+				next[0] = new Point(r, p.c);
+				break;
 			}
-			if(!foundPos && map[p.r][c].isRock()){
-				first = Math.max(0, Math.min(w-1,c+1));
-			}else if(foundPos && map[p.r][c].isRock()){
-				second = Math.max(0, Math.min(w-1,c-1));
-				continue;
+			if(map[r][p.c].isRock()){
+				next[0] = new Point(r+1, p.c);
+				break;
 			}
 		}
-		
-		next[3] = new Point(p.r, first);
-		next[1] = new Point(p.r, second);
+		// Find right move
+		for(int c=p.c+1; c<w; c++){
+			if(map[p.r][c].isEnd()){
+				next[1] = new Point(p.r, c);
+				break;
+			}
+			if(map[p.r][c].isRock()){
+				next[1] = new Point(p.r, c-1);
+				break;
+			}
+		}
+		// Find bottom move
+		for(int r=p.r+1; r<h; r++){
+			if(map[r][p.c].isEnd()){
+				next[2] = new Point(r, p.c);
+				break;
+			}
+			if(map[r][p.c].isRock()){
+				next[2] = new Point(r-1, p.c);
+				break;
+			}
+		}
+		// Find left move
+		for(int c=p.c-1; c>=0; c--){
+			if(map[p.r][c].isEnd()){
+				next[3] = new Point(p.r, c);
+				break;
+			}
+			if(map[p.r][c].isRock()){
+				next[3] = new Point(p.r, c+1);
+				break;
+			}
+		}
 		
 		return next;
 	}

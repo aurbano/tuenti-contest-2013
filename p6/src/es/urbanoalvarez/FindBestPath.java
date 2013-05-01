@@ -35,37 +35,42 @@ public class FindBestPath extends Thread{
 		currentNodes.add(new Node(wait, pos, speed)); // Initial node (Including possible gem)
 		
 		while(currentNodes.size() > 0){
-			System.out.println("Iteration "+iter+": "+currentNodes.size()+" nodes");
+			debug("Iteration "+iter+": "+currentNodes.size()+" nodes");
 			nextNodes = new LinkedList<Node>();
 			// Iterate the nodes
 			for(Node eachNode : currentNodes){
-				System.out.println("  "+eachNode.toString());
+				debug("  "+eachNode.toString());
+				// Discard if it's already longer than a valid time
+				if(eachNode.time >= time){
+					debug("      Too long");
+					continue;
+				}
 				// Reset the available moves
 				availMoves = 0;
 				// Test possible moves
 				possibleMoves = map.possibleMoves(eachNode.pos);
 				for(Point testPoint : possibleMoves){
-					// Discard current
-					if(testPoint.equals(eachNode.pos)) continue;
+					// Discard current and start
+					if(testPoint.equals(eachNode.pos) || testPoint.equals(map.start)) continue;
 					
 					// Discard already visited Points
 					if(!eachNode.testPoint(testPoint)) continue;
 					
 					// Discard tested points
 					if(testedPoints.contains(testPoint)){
-						System.out.println("    Already tested "+testPoint.toString());
+						debug("    Already tested "+testPoint.toString());
 						continue;
 					}
 					
-					System.out.println("    Valid move:"+testPoint.toString());
-					availMoves++;
-					
 					tempNode = eachNode.next(testPoint);
+					
+					debug("    Valid move:"+testPoint.toString()+", distance="+testPoint.distance(eachNode.pos)+", time="+tempNode.time);
+					availMoves++;
 					
 					// Is it the end?
 					if(testPoint.equals(map.end)){
 						time = Math.min(time,  tempNode.time);
-						System.out.println("    End reached in "+time+"s!");
+						debug("      --{{End"+testPoint.toString()+" reached in "+tempNode.time+"s!}}--\n");
 						continue;
 					}
 					// Store as a tested point
@@ -74,8 +79,8 @@ public class FindBestPath extends Thread{
 					tempNode.time += wait;
 					
 					// Discard if it's already longer than a valid time
-					if(tempNode.time > time){
-						System.out.println("     Too long, already found a better option");
+					if(tempNode.time >= time){
+						debug("      Too long");
 						continue;
 					}
 					
@@ -85,15 +90,21 @@ public class FindBestPath extends Thread{
 				
 				if(availMoves == 0){
 					// No more moves, did you reach the end?
-					System.out.println("    No more moves...");
-					//reward = Math.max(reward, eachNode.reward);
+					debug("    No more moves...");
 				}
 			}
 			// If there are any nextNodes update currentNodes
 			if(nextNodes.size()==0) break;
 			currentNodes = nextNodes;
 			iter++;
-			//if(iter > 5) break;
 		}
+	}
+	
+	/**
+	 * Simply display a text if I wanted to (comment out the system out for submit)
+	 * @param text
+	 */
+	public void debug(String text){
+		//System.out.println(text);
 	}
 }

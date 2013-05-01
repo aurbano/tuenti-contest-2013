@@ -3,7 +3,7 @@ package es.urbanoalvarez;
 import java.util.LinkedList;
 
 public class Node {
-	int time, speed, wait;
+	int time, speed;
 	Point pos;
 	LinkedList<Point> parents; // Visited points (avoid repeating)
 	
@@ -12,7 +12,6 @@ public class Node {
 		pos = p;
 		time = r;
 		this.speed = speed;
-		this.wait = wait;
 		parents = new LinkedList<Point>(); // Empty list
 	}
 	// Next nodes:
@@ -20,7 +19,6 @@ public class Node {
 		pos = p;
 		time = r;
 		this.speed = speed;
-		this.wait = wait;
 		this.parents = parents;
 	}
 	
