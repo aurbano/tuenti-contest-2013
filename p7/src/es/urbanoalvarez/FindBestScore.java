@@ -20,6 +20,8 @@ public class FindBestScore extends Thread{
 		try{
 			// Used words container
 			LinkedList<String> used = new LinkedList<String>();
+			// Used cells container
+			LinkedList<HashSet<Cell>> usedCells = new LinkedList<HashSet<Cell>>();
 			// Calculate all valid words (It returns them nicely sorted by value :D )
 			ArrayList<Word> words = validWords();
 			
@@ -30,7 +32,7 @@ public class FindBestScore extends Thread{
 				check = words.get(i);
 				i++;
 				debug("  Time = "+time+", Check: "+check);
-				if(!used.contains(check.w)){
+				if(!used.contains(check.w) && !usedCells.contains(new HashSet<Cell>(Arrays.asList(check.cells)))){
 					// Check time
 					if(time < check.w.length() + 1){
 						debug("    Not enough time");
@@ -40,6 +42,7 @@ public class FindBestScore extends Thread{
 					time -= check.w.length() + 1;
 					points += check.value;
 					used.add(check.w);
+					usedCells.add(new HashSet<Cell>(Arrays.asList(check.cells)));
 					debug("    Picked, Points="+points+", time="+time);
 				}else debug("    Already used");
 			}
@@ -204,7 +207,7 @@ public class FindBestScore extends Thread{
 	 */
 	private int validWord(String w){
 		if(w.length()<1) return 0;
-		for(Word word : tester.words.get(w.charAt(0))){
+		for(Word word : P7.words.get(w.charAt(0))){
 			if(word.w.equals(w)) return 1; // A word is this
 			if(word.w.indexOf(w)==0) return 0; // A word starts by this
 		}
@@ -216,6 +219,6 @@ public class FindBestScore extends Thread{
 	 * @param text
 	 */
 	public void debug(String text){
-		System.out.println(text);
+		//System.out.println(text);
 	}
 }

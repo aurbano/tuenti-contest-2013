@@ -37,7 +37,7 @@ public class tester {
 		Board board = new Board(2, 2, scores);
 		board.parseRow("B11 B11", 0);
 		board.parseRow("I11 P11", 1);
-		int duration = 9;//*/
+		int duration = 10;//*/
 		
 		board.print();
 		
