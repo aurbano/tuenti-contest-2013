@@ -36,7 +36,7 @@ public class Board {
 		for(col=0; col < cells.length; col++){
 			type = new Integer(Character.toString(cells[col].charAt(1)));
 			value = new Integer(Character.toString(cells[col].charAt(2)));
-			this.cells[num][col] = new Cell(cells[col].charAt(0), type, value);
+			this.cells[num][col] = new Cell(cells[col].charAt(0), num, col, type, value);
 		}
 	}
 	
@@ -47,7 +47,7 @@ public class Board {
 		System.out.println("Printing board "+h+" rows and "+w+" cols");
 		for(int r=0; r<this.h; r++){
 			for(int c=0; c<this.w;c++){
-				System.out.print("("+r+","+c+") "+cells[r][c].toString()+" ");
+				System.out.print(cells[r][c].toString()+" ");
 			}
 			System.out.println();
 		}
@@ -61,7 +61,7 @@ public class Board {
 			score += letterScore(each.letter) * each.CM();
 			multiplier = Math.max(multiplier, each.WM()); // Find the greatest multiplier
 		}
-		return score * multiplier;
+		return score * multiplier + cells.length;
 	}
 	
 	private int letterScore(char letter){

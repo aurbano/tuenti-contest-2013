@@ -1,16 +1,14 @@
 package es.urbanoalvarez;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.lang.reflect.Array;
+import java.util.*;
 
 public class FindBestScore extends Thread{
 	
 	Board board;
 	
-	int time;
+	int time, points=0;
 	
 	public FindBestScore(Board m, int time){
 		board = m;
@@ -25,14 +23,41 @@ public class FindBestScore extends Thread{
 			LinkedList<String> used = new LinkedList<String>();
 			// All possible words
 			Set<Word> possible = allWords();
-			// Calculate all valid words
-			Set<Word> words = validWords(possible);
-			
-			
-			debug("All valid words:");
-			for(Word word : words){
+			// Calculate all valid words (It returns them nicely sorted by value :D )
+			ArrayList<Word> words = validWords(possible);
+			debug("All possible words:");
+			for(Word word : possible){
+				// Assign their value
 				System.out.println(word);
 			}
+			debug("-------");
+			debug("All valid words:");
+			for(Word word : words){
+				// Assign their value
+				System.out.println(word);
+			}
+			debug("--------");
+			debug("Start picking");
+			int i = 0;
+			Word check;
+			while(time > 1 && i < words.size()){
+				check = words.get(i);
+				i++;
+				debug("  Time = "+time+", Check: "+check);
+				if(!used.contains(check.w)){
+					// Check time
+					if(time < check.w.length() + 1){
+						debug("    Not enough time");
+						continue;				
+					}
+					// Pick the word
+					time -= check.w.length() + 1;
+					points += check.value;
+					used.add(check.w);
+					debug("    Picked, Points="+points+", time="+time);
+				}else debug("    Already used a better one");
+			}
+			debug("Final points: "+points);
 			
 			// Now that I have all the valid words, find the combination that provides the most points in the given time
 		}catch(Exception e){
@@ -54,23 +79,41 @@ public class FindBestScore extends Thread{
 	 * @param words
 	 * @return
 	 */
-	private Set<Word> validWords(Set<Word> words) throws FileNotFoundException, IOException{
+	private ArrayList<Word> validWords(Set<Word> words) throws FileNotFoundException, IOException{
 		
-		Set<Word> valid = new HashSet<Word>();
+		//Set<Word> valid = new HashSet<Word>();
+		ArrayList<Word> ret = new ArrayList<Word>();
 		
 		int index;
+		Cell[] subcells;
 		// Iterate over the words
 		for(int i =0;i<P7.wordsNum;i++){
 			// For each word, check if it's contained in any of the words found in the board
 			for(Word check : words){
-				index = check.indexOf(P7.words.get(i));
-				if(index > -1){
-					valid.add(P7.words.get(i));
+				// We must take all occurences, since some might have more value
+				index = 0;
+				index = check.indexOf(P7.words.get(i), index);
+				while(index != -1){
+					// The word is contained. I would like to get it's cells
+					// and calculate its value. So that duplicate words can be weeded out correctly.
+					// Cells for this word:
+					subcells = new Cell[P7.words.get(i).w.length()];
+					for(int letter=0;letter<P7.words.get(i).w.length();letter++){
+						subcells[letter] = check.cells[index + letter];
+					}
+					ret.add(new Word(P7.words.get(i), subcells, board.wordScore(subcells)));
+					
+					// Next
+					index += P7.words.get(i).w.length();
+					index = check.indexOf(P7.words.get(i), index);
 				}
 			}
 		}
 		
-		return valid;
+		// Sort Words by value :D
+		Collections.sort(ret, new Word.WordComparator());
+		
+		return ret;
 	}
 	
 	/**
