@@ -1,7 +1,6 @@
 package es.urbanoalvarez;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class FindBestScore extends Thread{
@@ -19,10 +18,8 @@ public class FindBestScore extends Thread{
 	
 	public void run(){
 		try{
-			// Let's start by generating all possible words (All rows, columns and diagonals, max length)
+			// Used words container
 			LinkedList<String> used = new LinkedList<String>();
-			// All possible words
-			//Set<Word> possible = allWords();
 			// Calculate all valid words (It returns them nicely sorted by value :D )
 			ArrayList<Word> words = validWords();
 			
@@ -62,11 +59,10 @@ public class FindBestScore extends Thread{
 	 */
 	private ArrayList<Word> validWords() throws FileNotFoundException, IOException{
 		
-		//Set<Word> valid = new HashSet<Word>();
 		ArrayList<Word> ret = new ArrayList<Word>();
 		
-		LinkedList<Node> currentNodes = new LinkedList<Node>();
-		LinkedList<Node> nextNodes;
+		ArrayList<Node> currentNodes = new ArrayList<Node>();
+		ArrayList<Node> nextNodes = new ArrayList<Node>();
 		Cell[] possibleMoves;
 		
 		// Setup all starting points
@@ -77,7 +73,7 @@ public class FindBestScore extends Thread{
 			}
 		}
 		
-		// Now starts the fun part
+		// Let the fun begin...
 		
 		Node tempNode;
 		int availMoves, iter = 0;
@@ -85,7 +81,7 @@ public class FindBestScore extends Thread{
 		while(currentNodes.size() > 0){
 			debug("-------");
 			debug("Iteration "+iter+": "+currentNodes.size()+" nodes, "+ret.size()+" words");
-			nextNodes = new LinkedList<Node>();
+			nextNodes.clear();
 			// Iterate the nodes
 			for(Node eachNode : currentNodes){
 				debug("  "+eachNode.toString());
@@ -118,11 +114,9 @@ public class FindBestScore extends Thread{
 					if(testCell.status == 1){
 						Word w = tempNode.getWord();
 						debug("      Valid end "+w);
-						if(!ret.contains(w)){ // Check if this word was already picked
-							// Calculate score and submit
-							w.value = board.wordScore(tempNode.parents.toArray(new Cell[tempNode.parents.size()]));
-							ret.add(w);
-						}
+						// Calculate score and submit
+						w.value = board.wordScore(tempNode.parents.toArray(new Cell[tempNode.parents.size()]));
+						ret.add(w);
 					}
 					
 					availMoves++;
@@ -137,7 +131,7 @@ public class FindBestScore extends Thread{
 			}
 			// If there are any nextNodes update currentNodes
 			if(nextNodes.size()==0) break;
-			currentNodes = nextNodes;
+			currentNodes = new ArrayList<Node>(nextNodes);
 			iter++;
 		}
 		
@@ -210,9 +204,7 @@ public class FindBestScore extends Thread{
 	 */
 	private int validWord(String w){
 		if(w.length()<1) return 0;
-		//for(int i=0; i<P7.wordsNum;i++){
-		LinkedList<Word> avail = tester.words.get(w.charAt(0));
-		for(Word word : avail){
+		for(Word word : tester.words.get(w.charAt(0))){
 			if(word.w.equals(w)) return 1; // A word is this
 			if(word.w.indexOf(w)==0) return 0; // A word starts by this
 		}

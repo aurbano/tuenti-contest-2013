@@ -100,7 +100,7 @@ public class Word {
 		return w.compareTo(e.w);
 	}
 	
-	static class WordComparator implements Comparator {
+	static class WordComparator implements Comparator<Object> {
 		public int compare(Object o1, Object o2) {
 			if (!(o1 instanceof Word) || !(o2 instanceof Word)) throw new ClassCastException();
 			

@@ -4,21 +4,21 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 
 public class tester {
-	static LinkedHashMap<Character,LinkedList<Word>> words;
+	static LinkedHashMap<Character,ArrayList<Word>> words;
 	
 	public static void main(String[] args) throws InterruptedException, IOException{
 		
 		// Load dictionary in memory
-		words = new LinkedHashMap<Character,LinkedList<Word>>(); // Words from the dictionary, in memory
+		words = new LinkedHashMap<Character,ArrayList<Word>>(); // Words from the dictionary, in memory
 		BufferedReader dict = new BufferedReader(new FileReader("boozzle-dict.txt"));
 		String s;
 		while ((s = dict.readLine()) != null && s.length() != 0){
 			if(words.get(s.charAt(0))==null){
-				words.put(s.charAt(0), new LinkedList<Word>());
+				words.put(s.charAt(0), new ArrayList<Word>());
 			}
 			words.get(s.charAt(0)).add(new Word(s));
 			//wordsNum++;

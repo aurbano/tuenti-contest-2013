@@ -40,6 +40,11 @@ public class Board {
 		}
 	}
 	
+	/**
+	 * Calculate the score for a given set of cells
+	 * @param cells
+	 * @return
+	 */
 	public int wordScore(Cell[] cells){
 		int score = 0,
 			multiplier = 1;
