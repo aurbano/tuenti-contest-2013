@@ -108,8 +108,8 @@ public class Word {
 			Word e2 = (Word) o2;
 			
 			// Order by points to time ratio!!!
-			double ratio1 = e1.value / e1.w.length();
-			double ratio2 = e2.value / e2.w.length();
+			float ratio1 = (float)e1.value / (float)e1.w.length();
+			float ratio2 = (float)e2.value / (float)e2.w.length();
 			
 			return (int)Math.round(ratio2*1000 - ratio1*1000);
 		}
