@@ -113,19 +113,22 @@ public class FindBestScore extends Thread{
 					
 					debug("    Valid move:"+testCell.toString());
 					
-					// Test end
-					if(testCell.status == 1){
-						Word w = tempNode.getWord();
-						debug("      Valid end "+w);
-						// Calculate score and submit
-						w.value = board.wordScore(tempNode.parents.toArray(new Cell[tempNode.parents.size()]));
-						ret.add(w);
-					}
-					
+					// Add next node
 					availMoves++;
 					
 					// Valid node
 					nextNodes.add(tempNode);
+					
+					// Test end
+					if(testCell.status == 1){
+						Word w = tempNode.getWord();
+						// Check if the cells were used
+						debug("      Valid end "+w);
+						// Calculate score and submit
+						w.value = board.wordScore(tempNode.parents.toArray(new Cell[tempNode.parents.size()]));
+						ret.add(w);
+						
+					}
 				}
 				
 				if(availMoves == 0){
@@ -207,7 +210,7 @@ public class FindBestScore extends Thread{
 	 */
 	private int validWord(String w){
 		if(w.length()<1) return 0;
-		for(Word word : P7.words.get(w.charAt(0))){
+		for(Word word : tester.words.get(w.charAt(0))){
 			if(word.w.equals(w)) return 1; // A word is this
 			if(word.w.indexOf(w)==0) return 0; // A word starts by this
 		}
@@ -219,6 +222,6 @@ public class FindBestScore extends Thread{
 	 * @param text
 	 */
 	public void debug(String text){
-		//System.out.println(text);
+		System.out.println(text);
 	}
 }

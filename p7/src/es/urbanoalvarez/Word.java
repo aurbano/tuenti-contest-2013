@@ -111,9 +111,9 @@ public class Word {
 			float ratio1 = (float)e1.value / (float)(e1.w.length()+1);
 			float ratio2 = (float)e2.value / (float)(e2.w.length()+1);
 			
-			System.out.println("Comparing "+e1+" to "+e2);
+			/*System.out.println("Comparing "+e1+" to "+e2);
 			System.out.println("  Ratios 1="+ratio1+", 2="+ratio2);
-			System.out.println("  Comparison value => "+((int)Math.round(ratio2*1000 - ratio1*1000)));
+			System.out.println("  Comparison value => "+((int)Math.round(ratio2*1000 - ratio1*1000)));//*/
 			
 			return (int)Math.round(ratio2*1000 - ratio1*1000);
 		}
