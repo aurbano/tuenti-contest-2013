@@ -19,7 +19,10 @@ public class FindBestScore extends Thread{
 	public void run(){
 		try{
 			// Used words container
-			LinkedList<String> used = new LinkedList<String>();
+			ArrayList<String> used = new ArrayList<String>();
+			// Same as previous, but will allow some extra checks
+			ArrayList<Word> usedWords = new ArrayList<Word>();
+			ArrayList<Word> unusedWords = new ArrayList<Word>();
 			// Used cells container
 			//HashSet<Cell> usedCells = new HashSet<Cell>();
 			// Calculate all valid words (It returns them nicely sorted by value :D )
@@ -28,7 +31,7 @@ public class FindBestScore extends Thread{
 			debug("Start picking");
 			int i = 0;
 			Word check;
-			while(/*time > 2 &&*/ i < words.size()){
+			while(time > 0 && i < words.size()){
 				check = words.get(i);
 				i++;
 				debug("  Time = "+time+", Check: "+check);
@@ -36,12 +39,14 @@ public class FindBestScore extends Thread{
 					// Check time
 					if(time < check.w.length() + 1){
 						debug("    Not enough time");
+						unusedWords.add(check);
 						continue;				
 					}
 					// Pick the word
 					time -= check.w.length() + 1;
 					points += check.value;
 					used.add(check.w);
+					usedWords.add(check);
 					/*for (Cell usedCell : check.cells) {
 					   //productMap.put(product.getProductCode(), product);
 						usedCells.add(usedCell);
@@ -50,7 +55,63 @@ public class FindBestScore extends Thread{
 					debug("    Picked, Points="+points+", time="+time);
 				}else debug("    Already used");
 			}
-			debug("Final points: "+points);
+			/*
+			 * Picking words this way may result in time being wasted => at least 2 seconds wasted.
+			 * So I will now check back, if time was left, to see if I could arrange the last words in some other way
+			 * that will maximize the points.
+			 */
+			int extra = 0;
+			
+			if(time > 0){
+				debug("Extra time (t>0), see if there is extra points");
+				int wordLen; // Extra possible points
+				Word eachUsed;
+				// Now we will check the unused words
+				for(Word unused : unusedWords){
+					debug("  Checking "+unused);
+					// For each word, reduce its length by the unused time
+					wordLen = unused.w.length() - time;
+					// Now iterate in reverse order the used words, to see if it can replace any of them
+					for(int j = usedWords.size() - 1; j >= 0; j--){
+						eachUsed = usedWords.get(j);
+						if(wordLen <= eachUsed.w.length() && unused.value > eachUsed.value){
+							// Could be replaced
+							extra = Math.max(extra, unused.value - eachUsed.value);
+							debug("    Found replacement (+"+extra+"p): "+eachUsed+" for "+unused);
+						}
+					}
+				}
+				debug("Extra time = "+extra);
+			}else{
+				/*
+				 * Find a better use for the unused words, replacing groups of words
+				 */
+				debug("Extra time, with unused");
+				Word eachUsed;
+				int remaining, possibleExtra;
+				for(Word unused : unusedWords){
+					remaining = unused.w.length();
+					possibleExtra = 0;
+					debug("  Testing "+unused);
+					// Walk used words in reverse order
+					for(int j = usedWords.size() - 1; j >= 0; j--){
+						eachUsed = usedWords.get(j);
+						if(possibleExtra + eachUsed.value < unused.value && remaining > eachUsed.w.length()){
+							// I could use this one
+							remaining = unused.w.length() - eachUsed.w.length();
+							possibleExtra += eachUsed.value;
+							debug("    Valid replacement = "+eachUsed);
+						}
+						if(remaining == 0) continue;
+					}
+					possibleExtra = unused.value - possibleExtra;
+					debug("      Final replacement, gets "+possibleExtra+" points");
+					extra = Math.max(extra, possibleExtra);
+				}
+			}
+			debug("Initial points = "+points);
+			points += extra;
+			debug("With extra = "+points);
 			
 			// Now that I have all the valid words, find the combination that provides the most points in the given time
 		}catch(Exception e){
@@ -213,7 +274,7 @@ public class FindBestScore extends Thread{
 	 */
 	private int validWord(String w){
 		if(w.length()<1) return 0;
-		for(Word word : P7.words.get(w.charAt(0))){
+		for(Word word : tester.words.get(w.charAt(0))){
 			if(word.w.equals(w)) return 1; // A word is this
 			if(word.w.indexOf(w)==0) return 0; // A word starts by this
 		}
@@ -225,6 +286,6 @@ public class FindBestScore extends Thread{
 	 * @param text
 	 */
 	public void debug(String text){
-		//System.out.println(text);
+		System.out.println(text);
 	}
 }
