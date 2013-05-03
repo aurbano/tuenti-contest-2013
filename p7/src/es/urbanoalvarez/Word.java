@@ -99,23 +99,4 @@ public class Word {
 		Word e = (Word) o;
 		return w.compareTo(e.w);
 	}
-	
-	static class WordComparator implements Comparator<Object> {
-		public int compare(Object o1, Object o2) {
-			if (!(o1 instanceof Word) || !(o2 instanceof Word)) throw new ClassCastException();
-			
-			Word e1 = (Word) o1;
-			Word e2 = (Word) o2;
-			
-			// Order by points to time ratio!!!
-			float ratio1 = (float)e1.value / (float)(e1.w.length()+1);
-			float ratio2 = (float)e2.value / (float)(e2.w.length()+1);
-			
-			/*System.out.println("Comparing "+e1+" to "+e2);
-			System.out.println("  Ratios 1="+ratio1+", 2="+ratio2);
-			System.out.println("  Comparison value => "+((int)Math.round(ratio2*1000 - ratio1*1000)));//*/
-			
-			return (int)Math.round(ratio2*1000 - ratio1*1000);
-		}
-	}
 }

@@ -7,7 +7,7 @@ public class testPass {
 		System.out.println(16);
 		System.out.println(22);
 		System.out.println(149);
-		System.out.println(396);
-		System.out.println(1201);
+		System.out.println(579);
+		System.out.println(1323);
 	}
 }
